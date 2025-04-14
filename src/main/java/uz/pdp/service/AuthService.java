@@ -1,8 +1,12 @@
 package uz.pdp.service;
 
 import jakarta.validation.Valid;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import uz.pdp.dto.LoginDTO;
 import uz.pdp.dto.UserDTO;
 import uz.pdp.exceptions.MyException;
 import uz.pdp.model.ApiKetmonResponse;
@@ -14,7 +18,8 @@ import java.time.Period;
 import java.util.Objects;
 
 @Service
-public record AuthService(UserRepo userRepo, PasswordEncoder passwordEncoder) {
+public record AuthService (UserRepo userRepo,
+                          PasswordEncoder passwordEncoder) implements UserDetailsService {
 
 
     //encode -> decode
@@ -42,6 +47,23 @@ public record AuthService(UserRepo userRepo, PasswordEncoder passwordEncoder) {
         return ApiKetmonResponse.success("ok bro");
     }
 
+    public String login(LoginDTO loginDTO) {
+        User user = userRepo.findByEmail(loginDTO.getEmail()).orElseThrow(() -> new MyException("Email or password wrong"));
+        if (!passwordEncoder.matches(loginDTO.getPassword(), user.getPassword()))
+            throw new MyException("Email or password wrong");
+        return user.getName();
+    }
+
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepo.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Email not found"));
+        return org.springframework.security.core.userdetails.User.builder()
+                .username(username)
+                .password(user.getPassword())
+                .build();
+    }
+
     private User mapToUser(UserDTO userDTO) {
         User user = new User();
         user.setEmail(userDTO.getEmail());
@@ -50,3 +72,7 @@ public record AuthService(UserRepo userRepo, PasswordEncoder passwordEncoder) {
         return user;
     }
 }
+
+/*
+username -> password
+ */

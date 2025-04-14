@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import uz.pdp.model.User;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface UserRepo extends JpaRepository<User, Integer> {
@@ -33,4 +34,6 @@ public interface UserRepo extends JpaRepository<User, Integer> {
 
     @Query(nativeQuery = true,value = "CALL myProc(:ketmon)")
     void myProc(String ketmon);
+
+    Optional<User> findByEmail(String email);
 }

@@ -1,9 +1,11 @@
 package uz.pdp.controller;
 
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import uz.pdp.dto.LoginDTO;
 import uz.pdp.dto.UserDTO;
 import uz.pdp.model.ApiKetmonResponse;
 import uz.pdp.service.AuthService;
@@ -18,4 +20,19 @@ public record AuthController(AuthService authService) {
         return authService.register(userDTO);
     }
 
+
+    @PostMapping("/api/auth/login")
+    public String login(@Valid @RequestBody LoginDTO loginDTO) {
+        return authService.login(loginDTO);
+    }
+
+
+
+    /*
+    post - send data to server
+    put - full update
+    patch - partial update
+    delete - remove
+    get - fetch
+     */
 }
