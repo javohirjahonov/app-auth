@@ -1,6 +1,5 @@
 package uz.pdp.service;
 
-import jakarta.validation.Valid;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -9,7 +8,7 @@ import org.springframework.stereotype.Service;
 import uz.pdp.dto.LoginDTO;
 import uz.pdp.dto.UserDTO;
 import uz.pdp.exceptions.MyException;
-import uz.pdp.model.ApiKetmonResponse;
+import uz.pdp.dto.ApiKetmonResponse;
 import uz.pdp.model.User;
 import uz.pdp.repo.UserRepo;
 
@@ -19,7 +18,8 @@ import java.util.Objects;
 
 @Service
 public record AuthService (UserRepo userRepo,
-                          PasswordEncoder passwordEncoder) implements UserDetailsService {
+                          PasswordEncoder passwordEncoder,
+                           JwtService jwtService) implements UserDetailsService {
 
 
     //encode -> decode
@@ -47,11 +47,12 @@ public record AuthService (UserRepo userRepo,
         return ApiKetmonResponse.success("ok bro");
     }
 
-    public String login(LoginDTO loginDTO) {
+    public ApiKetmonResponse<String> login(LoginDTO loginDTO) {
         User user = userRepo.findByEmail(loginDTO.getEmail()).orElseThrow(() -> new MyException("Email or password wrong"));
         if (!passwordEncoder.matches(loginDTO.getPassword(), user.getPassword()))
             throw new MyException("Email or password wrong");
-        return user.getName();
+        String token = jwtService.generateAccessToken(user);
+        return ApiKetmonResponse.successData(token);
     }
 
 
