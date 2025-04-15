@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import uz.pdp.service.AuthService;
 
 @Configuration
@@ -20,6 +21,7 @@ public class SecurityConfig {
 
     private final AuthService authService;
     private final PasswordEncoder passwordEncoder;
+    private final JwtMyFilter myFilter;
 
     @Bean
     public SecurityFilterChain ketmon(HttpSecurity http) throws Exception {
@@ -45,7 +47,7 @@ public class SecurityConfig {
                                 response.sendError(403);
                             });
                 })
-                .httpBasic(Customizer.withDefaults())
+                .addFilterBefore(myFilter, UsernamePasswordAuthenticationFilter.class)
         ;
 
         return http.build();
@@ -59,7 +61,6 @@ public class SecurityConfig {
                 .and()
                 .build();
     }
-
 
 
 }
