@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -17,6 +19,7 @@ import uz.pdp.service.AuthService;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final AuthService authService;
@@ -34,19 +37,22 @@ public class SecurityConfig {
                                         "/login",
                                         "/api/user"
                                 ).permitAll()
+//                                .requestMatchers("/api/tesha").hasAnyAuthority("admin")
+//                                .requestMatchers("/api/ketmon").hasAnyAuthority("admin", "moder")
+//                                .requestMatchers("/api/uroq").hasAnyAuthority("admin", "moder", "user")
                                 .requestMatchers("/api/**").authenticated()
                 )
                 .csrf(AbstractHttpConfigurer::disable)
-                .exceptionHandling(httpSecurityExceptionHandlingConfigurer -> {
-                    httpSecurityExceptionHandlingConfigurer.authenticationEntryPoint(
-                                    (request, response, authException) -> {
-                                        response.sendError(401);
-                                    }
-                            )
-                            .accessDeniedHandler((request, response, accessDeniedException) -> {
-                                response.sendError(403);
-                            });
-                })
+//                .exceptionHandling(httpSecurityExceptionHandlingConfigurer -> {
+//                    httpSecurityExceptionHandlingConfigurer.authenticationEntryPoint(
+//                                    (request, response, authException) -> {
+//                                        response.sendError(401);
+//                                    }
+//                            )
+//                            .accessDeniedHandler((request, response, accessDeniedException) -> {
+//                                response.sendError(403);
+//                            });
+//                })
                 .addFilterBefore(myFilter, UsernamePasswordAuthenticationFilter.class)
         ;
 

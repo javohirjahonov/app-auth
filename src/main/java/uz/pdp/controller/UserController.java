@@ -1,5 +1,8 @@
 package uz.pdp.controller;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uz.pdp.model.User;
@@ -10,7 +13,10 @@ import java.util.Base64;
 import java.util.List;
 
 @RestController
-public record UserController(UserService userService) {
+@RequiredArgsConstructor
+public class UserController {
+
+    private final UserService userService;
 
 
     //basic auth
@@ -20,13 +26,23 @@ public record UserController(UserService userService) {
         return userService.list();
     }
 
-    public static void main(String[] args) {
-        String s = "ketmonsada121@gmail.com:Ahmoq_1234";
-        byte[] encode = Base64.getEncoder().encode(s.getBytes(StandardCharsets.UTF_8));
-        String encoded = new String(encode, StandardCharsets.UTF_8);
-        System.out.println(encoded);
-        byte[] decode = Base64.getDecoder().decode(encoded);
-        String decoded = new String(decode, StandardCharsets.UTF_8);
-        System.out.println(decoded);
+    @PostAuthorize(value = "hasAnyAuthority('admin')")
+    @GetMapping("/api/tesha")
+    public String a() {
+        return "welcome to the tesha controller";
     }
+
+    @PreAuthorize(value = "hasAnyAuthority('admin','moder')")
+    @GetMapping("/api/ketmon")
+    public String b() {
+        return "welcome to the ketmon controller";
+    }
+
+    @PreAuthorize(value = "hasAnyAuthority('admin','moder','user')")
+    @GetMapping("/api/uroq")
+    public String c() {
+        return "welcome to the uroq controller";
+    }
+
+
 }
